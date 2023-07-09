@@ -1,0 +1,30 @@
+{% extends "todoapp/base.html" %}
+{% load static %}
+{% block head %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+{% endblock %}
+{% block content %}
+{% csrf_token %}
+<script>
+    let i = document.getElementsByName("csrfmiddlewaretoken")[0];
+    console.log(i.value);
+    let d = {
+        name:'adel',
+        description:'test ajax',
+        csrfmiddlewaretoken: i.value,
+    };
+    $(document).ready(function(){
+        $("button").click(function(){
+            $.post(
+                "/",
+                d,
+                function(data){
+                    alert("data: " + data.s);
+            });
+        });
+    });
+</script>
+<button>send request</button>
+    
+    <!-- <script src="https://code.jquery.com/jquery-3.7.0.js"></script> -->
+{% endblock %}

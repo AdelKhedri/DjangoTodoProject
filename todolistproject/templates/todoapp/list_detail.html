@@ -1,0 +1,136 @@
+{% extends 'todoapp/base.html' %}
+{% block content %}
+    <div class="container bg-light">
+        <div class="row mt-4">
+            <div class="d-flex justify-content-center">
+                {% if todolist %}
+                <h2>{{ todolist }}</h2>
+                
+                {% endif %}
+            </div>
+        </div>
+        <div class="row pt-5 mt-5 bg-light">
+            <div class="col-3">
+                
+            </div>
+            <div class="col-6">
+                {% if count_deleted %}
+                <h5 style="color: red;">{{count_deleted}} has deleted.</h5>
+                {% elif count_updated %}
+                <h5 style="color: green;">{{count_updated}} has updated.</h5>
+                {% endif %}
+                <div class="card ">
+                    <div class="card-body">
+                        <form action="" method="post" class="my-4">
+                            {% csrf_token %}
+                            <div class="container">
+                                <div class="row">
+                                    
+                                    <h4 class="my-3 ms-5 text-seccondary">Add new List</h4>
+                                </div>
+                                <div class="row">
+                                    <div class="col-1"></div>
+                                    <div class="col-8">
+                                        <div class="form-floating">
+                                            {{form.title}}
+                                            <!-- <input type="text" class="form-control" id="name" placeholder="item"> -->
+                                            <label for="name">name</label>
+                                        </div>
+                                        <div class="form-floating my-2">
+                                            {{form.description}}
+                                            <!-- <textarea class="form-control" placeholder="description" id="description" ></textarea> -->
+                                            <label for="description">Descrption</label>
+                                          </div>
+                                    </div>
+                                    <div class="col-3 pt-5 mt-5">
+                                        <button id="btn-create-item" class="btn btn-primary mt-2 ms-4" type="submit">Save</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <table dir="rtl" class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Number</th>
+                            <th scope="col">Todo item</th>
+                            <th scope="col">status</th>
+                            <th scope="col">actions</th>
+                        </tr>
+                    </thead>
+                        {% if items %}
+                        {% for item in items %}
+                        <tbody id="items_list" class="table-group-divider">
+                          <tr>
+                            <th scope="row">1</th>
+                            <td>{{item.title}}</td>
+                            <td>{{item.get_status_display}}</td>
+                            <td class="d-flex align-items-centexr">
+                                <div  class="d-flex align-items-start">
+                                    <form action="" method="post">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="delete_item_id" value="{{item.id}}">
+                                        <input type="hidden" name="action" value="delete">
+                                        <input type="hidden" name="next" value="{{todolist.id}}">
+                                        <button class="btn btn-danger ms-2 mb-2" type="submit">delete</button>
+                                    </form>
+                                    <form action="" class="ps-3" method="post">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="delete_item_id" value="{{item.id}}">
+                                        <input type="hidden" name="action" value="update">
+                                        <input type="hidden" name="next" value="{{todolist.id}}">
+                                        <button class="btn btn-warning" type="submit">{{item.active}}</button>
+                                    </form>
+                                </div>
+                            </td>
+                          </tr>
+                        </tbody>
+                        {% endfor %}
+                        {% endif %}
+                  </table>
+            </div>
+            <div class="col-3">
+
+            </div>
+        </div>
+    </div>
+    <script>
+        const btnCreateItem = document.getElementById("btn-create-item");
+        const itemCreator = document.getElementById("items_list");
+        btnCreateItem.addEventListener('click', function(e){
+            e.preventDefault();
+            let title = document.getElementById("titel");
+            let description = document.getElementById("description");
+            let fm = new FormData();
+            fm.append("csrfmiddlewaretoken", "{{csrf_token}}");
+            fm.append("title", title);
+            fm.append("description", description);
+            // axios.post('/details/{{pk}}', fm).then(res => {
+                itemCreator.innerHTML += `
+                <tr>
+                    <th scope="row">1</th>
+                    <td>${res.data.title}</td>
+                    <td>${res.data.get_status_display}</td>
+                    <td class="d-flex align-items-centexr">
+                        <div  class="d-flex align-items-start">
+                            <!-- <form action="/${res.data.item.id}/delete?" method="get"> -->
+                                <button class="btn btn-danger ms-2 mb-2" value="1" type="submit">delete</button>
+                            <!-- </form> -->
+                            <!-- <a href="/${res.data.item.id}/delete?details/${res.data.todolist.id}">ss</a> -->
+                            <!-- <form action="/${res.data.item.id}/active" class="ps-3" method="get"> -->
+                                <button class="btn btn-warning" type="submit">${res.data.item.active}</button>
+                                <!-- </form> -->
+                                <!-- <input type="checkbox" name="TEST" value="4"> -->
+                            <input class="form-check-input" type="checkbox" name="item_check" value="${res.data.item.id}" id="flexCheckChecked">
+                        </div>
+                    </td>
+                </tr>
+                `;
+            }).catch( err => {
+                console.log(err);
+            })
+        })
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js" integrity="sha512-uMtXmF28A2Ab/JJO2t/vYhlaa/3ahUOgj1Zf27M5rOo8/+fcTUVH0/E0ll68njmjrLqOBjXM3V9NiPFL5ywWPQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+{% endblock %}
